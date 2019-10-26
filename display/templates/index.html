@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	
+	{% load static %}
+	<link rel="stylesheet" type="text/css" href="{% static 'display/css/style.css' %}">
+
+</head>
+<body>
+	<div id="foreground"></div>
+	<div id="background"></div>
+
+
+
+
+	<script src="{% static 'display/js/jquery.min.js' %}"></script>
+    <script src="{% static 'display/js/jquery.cacheimage.js' %}"></script>
+    <script src="{% static 'display/js/pagetransitions.js' %}"></script>
+    <script type="text/javascript">
+
+      var currentArtworkUrl = "";
+      function doPoll(){
+        $.ajax({
+            url: '/api/artworks/',
+            dataType: 'json',
+            success: function( data ) {
+              var artwork = data[0];
+              if (currentArtworkUrl != artwork.portrait){
+              	artworkUrl = "/media/" + artwork.portrait;
+              	// $('#foreground').css('backgroundImage','url(' + artwork.photo + ')');
+                $('#foreground').css('backgroundImage','url(' + artworkUrl + ')');
+
+                  // $('#background').css('backgroundImage','url('+'http://localhost:3000/uploads/anna-gru-b_RemSkG2uE-unsplash.jpg'+')');
+                  // $('#foreground').hide();
+                  // $('#foreground').addClass('pt-page-moveToLeft');
+                  // $('#background').addClass('pt-page-moveFromRight');
+                  // $('#foreground').hide();
+
+                  // outClass = 'pt-page-moveToLeft';
+                  // inClass = 'pt-page-moveFromRight';
+
+
+                  // $('#background').css('backgroundImage','url('+'http://localhost:3000/uploads/anna-gru-b_RemSkG2uE-unsplash.jpg'+')');
+                  // $('#foreground').hide();
+                  // $('#foreground').show();
+
+                currentArtworkUrl = artwork.portrait;
+                console.log('Changing Photo');
+              }else{
+                console.log('Ran but not changing photo');
+              }
+              setTimeout(doPoll, 5000);
+            },
+            error: function( data ) {
+              console.log( "ERROR:  " + data );
+              // doPoll();
+              setTimeout(doPoll, 5000);
+            }
+          });        
+      }
+      doPoll();
+
+    </script>
+
+</body>
+</html>
