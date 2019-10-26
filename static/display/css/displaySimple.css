@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+}
+
+html{
+    overflow: hidden;
+}
+
+html, body {
+    height: 100%;
+    background-color:black; 
+}
+
+#foreground, #background { 
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -20px;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    
+    -webkit-transition: background-image 3s ease-in-out;
+    transition: background-image 3s ease-in-out;
+}

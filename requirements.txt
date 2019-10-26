@@ -4,7 +4,6 @@ Django==2.2.6
 django-appconf==1.0.3
 django-extensions==2.2.5
 django-filter==2.2.0
-django-imagekit==4.0.2
 djangorestframework==3.10.3
 enum34==1.1.6
 exif==0.8.1
