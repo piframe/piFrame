@@ -12,18 +12,22 @@ def fit(animage, size, path):
         im = Image.open(animage)
     except IOError:
         raise
-    for orientation in ExifTags.TAGS.keys():
-        if ExifTags.TAGS[orientation] == 'Orientation':
-            break
-    if im._getexif():
-        exif = dict(im._getexif().items())
 
-        if exif[orientation] == 3:
-            im = im.rotate(180, expand=True)
-        elif exif[orientation] == 6:
-            im = im.rotate(270, expand=True)
-        elif exif[orientation] == 8:
-            im = im.rotate(90, expand=True)
+    try:
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation] == 'Orientation':
+                break
+            if im._getexif():
+                exif = dict(im._getexif().items())
+
+                if exif[orientation] == 3:
+                    im = im.rotate(180, expand=True)
+                elif exif[orientation] == 6:
+                    im = im.rotate(270, expand=True)
+                elif exif[orientation] == 8:
+                    im = im.rotate(90, expand=True)
+    except:
+        pass
 
     landscape = ImageOps.fit(im, size, method=0, bleed=0.0, centering=(0.5, 0.5))
 
