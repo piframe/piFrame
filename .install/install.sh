@@ -45,54 +45,50 @@ piframe_ask_rotate() {
 
 
 # configure the nginx 
-nginx_do_install() {
-	apt-get install --no-install-recommends nginx -y
+nginx_do_config() {
 	cat > /etc/nginx/sites-available/piframe.conf << EOF
-worker_processes 1;
-events {
-    worker_connections 1024;
+upstream django {
+  server 127.0.0.1:8000;
 }
-http {
-    sendfile on;
-    gzip              on;
-    gzip_http_version 1.0;
-    gzip_proxied      any;
-    gzip_min_length   500;
-    gzip_disable      "MSIE [1-6]\.";
-    gzip_types        text/plain text/xml text/css
-                      text/comma-separated-values
-                      text/javascript
-                      application/x-javascript
-                      application/atom+xml;
-    server {
-        listen 80;
-        location ^~ /static/  {
-            root /home/pi/piFrame/static/;
-        }
-        location = /favico.ico  {
-            root /home/pi/piFrame/favico.ico;
-        }
-        location / {
-            proxy_pass         http://127.0.0.1:8000;
-            proxy_redirect     off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
-        }
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    charset     utf-8;
+
+    # max upload size
+    client_max_body_size 75M;   # adjust to taste
+
+    # Django media
+    location /media  {
+            alias /opt/piFrame/media;  # your Django project's media files - amend as required
+    }
+
+    location /static {
+            alias /opt/piFrame/static; # your Django project's static files - amend as required
+    }
+
+    # Finally, send all non-media requests to the Django server.
+    location / {
+            uwsgi_pass  django;
+            include     /opt/piFrame/uwsgi_params;
     }
 }
 EOF
 	ln -s /etc/nginx/sites-available/piframe.conf /etc/nginx/sites-enabled/piframe.conf
 	rm -rf /etc/nginx/sites-enabled/default
-	nginx restart
+	systemctl restart nginx restart
 }
 
-#tools needed
-tools_do_install() {
-  echo "install git"
-	apt-get install --no-install-recommends git -y
-
+#Optional Tools
+optional_tools_do_install() {
   echo "install vim"
 	apt-get install --no-install-recommends vim -y
 
@@ -122,20 +118,52 @@ setxkbmap -option terminate:ctrl_alt_bksp
 # Start Chromium in kiosk mode
 sed -i 's/"exited_cleanly":false/"exited_cleanly":true/' ~/.config/chromium/'Local State'
 sed -i 's/"exited_cleanly":false/"exited_cleanly":true/; s/"exit_type":"[^"]\+"/"exit_type":"Normal"/' ~/.config/chromium/Default/Preferences
-chromium-browser --disable-infobars --kiosk 'http://localhost:3000/display'
+chromium-browser --disable-infobars --kiosk 'http://127.0.0.1/display/'
 EOF
 }
 
-piFrame_systemd_config(){
+piframe_systemd_config(){
 # configure the openbox 
-cat > /etc/xdg/openbox/autostart << EOF
+cat > /etc/systemd/system/piframe.service << EOF
+# /etc/systemd/system/piframe.service
 
+[Unit]
+Description=piframe
+
+# Requirements
+Requires=network.target
+
+# Dependency ordering
+After=network.target
+
+[Service]
+TimeoutStartSec=0
+RestartSec=10
+Restart=always
+
+# path to app
+WorkingDirectory=/opt/piFrame
+# the user that you want to run app by
+User=www-data
+Group=www-data
+
+KillSignal=SIGQUIT
+Type=notify
+NotifyAccess=all
+
+# Main process
+ExecStart=/usr/local/bin/uwsgi --socket :8000 --module piframe.wsgi
+
+[Install]
+WantedBy=multi-user.target
 EOF
+systemctl enable piframe.service
+systemctl start piframe.service
 }
 
 piframe_do_install() {
 	# disable terminal screen blanking
-  openframe_edit_or_add ~/.bashrc "setterm -powersave off -blank 0"
+  piframe_edit_or_add ~/.bashrc "setterm -powersave off -blank 0"
 
 	# update the system
 	echo "update system"
@@ -151,26 +179,49 @@ piframe_do_install() {
 	echo "install chromium"
 	apt-get install --no-install-recommends chromium-browser -y
 
+  echo "install python tools"
+  apt-get install --no-install-recommends python3-dev python3-setuptools -y
+
+  echo "install pip3"
+  apt-get install --no-install-recommends python3-pip -y
+
+  echo "libjpg"
+  apt-get install --no-install-recommends libjpeg-dev -y
+
+  echo "install git"
+  apt-get install --no-install-recommends git -y
+
+  echo "install Nginx"
+  apt-get install --no-install-recommends nginx -y
+
   echo "configure openbox"
   openbox_do_config
 
-  echo "install tools"
-  tools_do_install
+  echo "install optional tools"
+  optional_tools_do_install
 
-	echo "install openframe"
-
+	echo "install piframe"
 	echo "cloning piframe repo"
-  cd /home/pi
-	git clone https://github.com/adriangoris/piFrame /home/pi/piFrame
-	cd /home/pi/piFrame
+	git clone https://github.com/adriangoris/piFrame /opt/piFrame
 
 	echo "installing python modules"
-	pip3 install -r /home/pi/piFrame/requirements.txt
-
-	echo "creating and configuring database"
-	python3 /home/pi/piFrame/manage.py migrate
-	# uwsgi --http :8000 --module piframe.wsgi
+	pip3 install -r /opt/piFrame/requirements.txt
   
+	echo "creating and configuring database"
+	python3 /opt/piFrame/manage.py migrate
+
+  echo "change permissions of directory"
+  chown -R www-data:www-data /opt/piFrame
+
+  echo "install nginx"
+  nginx_do_config
+
+  echo "install uwsgi"
+  pip3 install uwsgi
+
+  echo "configure piframe systemctl"
+  piframe_systemd_config
+
   # interactive prompt for configuration
   piframe_ask_rotate
 
@@ -181,18 +232,16 @@ piframe_do_install() {
   echo ""
   echo "After restarting or reloading .bashrc, you can launch the frame by just typing:"
   echo ""
-  echo "openframe"
+  echo "piframe"
 
 }
-
-
 
 piframe_do_install
 
 # add the autostart when running
-cat > /home/pi/.bash_profile << EOF
-[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
-EOF
+# cat > /home/pi/.bash_profile << EOF
+# [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
+# EOF
 
 #enable ssh
 # cat > /boot/ssh << EOF
