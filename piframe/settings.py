@@ -17,19 +17,21 @@ from piframe.rasbian_config_parser import RpiConfigParser
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Config Parser
+config = configparser.SafeConfigParser()
 SETTINGS_TEMPLATE_FILE = os.path.join(BASE_DIR, 'config.ini.example')
 SETTINGS_FILE_PATH = os.path.join(BASE_DIR, 'config.ini')
-RASBIAN_CONFIG_PATH = os.path.join('/Volumes/boot/config.txt')
-
-config = configparser.SafeConfigParser()
 config.read(SETTINGS_TEMPLATE_FILE)
 config.read(SETTINGS_FILE_PATH)
 
+# RpiConfig Parser
 rpiconfig = RpiConfigParser()
+RASBIAN_CONFIG_PATH = config.get('DEFAULT', 'RASBIAN_CONFIG_PATH')
 RPI_CONFIGS = rpiconfig.read(RASBIAN_CONFIG_PATH)
 RPI_IP = rpiconfig.get_host_name_ip()
-DISPLAY_ROTATE = rpiconfig.get('display_rotate')
 
+# Define Env Constants
+DISPLAY_ROTATE = rpiconfig.get('display_rotate')
 FRAME_RESOLUTION = (
     int(config.get('DEFAULT', 'WIDTH')),
     int(config.get('DEFAULT', 'HEIGHT'))
