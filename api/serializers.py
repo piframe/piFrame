@@ -17,10 +17,10 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ArtworkSerializer(serializers.HyperlinkedModelSerializer):
-    landscape = serializers.CharField(read_only=True) # style={'input_type': 'password'}
+    landscape = serializers.CharField(read_only=True)  # style={'input_type': 'password'}
     portrait = serializers.CharField(read_only=True)
 
     class Meta:
         model = Artwork
         fields = ['photo', 'url', 'landscape', 'portrait']
-        read_only_fields = ['landscape', 'portrait']
+        read_only_fields = ['url']

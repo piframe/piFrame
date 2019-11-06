@@ -122,13 +122,34 @@ chromium-browser --disable-infobars --kiosk 'http://127.0.0.1/display/'
 EOF
 }
 
-piframe_systemd_config(){
+piframe_splashscreen_config(){
+# configure the openbox 
+cat > /etc/systemd/system/splashscreen.service << EOF
+# /etc/systemd/system/splashscreen.service
+
+[Unit]
+Description=splashScreen
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+ExecStart=/usr/bin/fbi -d /dev/fb0 --noverbose -a /opt/piFrame/.logo/splash.png
+StandardInput=tty
+StandardOutput=tty
+
+[Install]
+WantedBy=sysinit.target
+EOF
+systemctl enable splashscreen.service
+}
+
+piframe_uwsgi_config(){
 # configure the openbox 
 cat > /etc/systemd/system/piframe.service << EOF
 # /etc/systemd/system/piframe.service
 
 [Unit]
-Description=piframe
+Description=piFrame
 
 # Requirements
 Requires=network.target
@@ -162,8 +183,22 @@ systemctl start piframe.service
 }
 
 piframe_do_install() {
-	# disable terminal screen blanking
-  piframe_edit_or_add ~/.bashrc "setterm -powersave off -blank 0"
+	# disable the Raspberry Pi ‘color test’ 
+  piframe_edit_or_add /boot/config.txt "disable_splash=1"
+
+  # disable the Raspberry Pi logo in the corner of the screen
+  piframe_edit_or_add /boot/cmdline.txt "logo.nologo"
+
+  # disable kernel messages
+  piframe_edit_or_add /boot/cmdline.txt "consoleblank=0"
+  piframe_edit_or_add /boot/cmdline.txt "loglevel=1"
+  piframe_edit_or_add /boot/cmdline.txt "quiet"
+
+  # disable terminal screen blanking
+  piframe_edit_or_add /home/pi/.bashrc "setterm -powersave off -blank 0"
+
+  # disable the login prompt
+  systemctl disable getty@tty1
 
 	# update the system
 	echo "update system"
@@ -220,7 +255,7 @@ piframe_do_install() {
   pip3 install uwsgi
 
   echo "configure piframe systemctl"
-  piframe_systemd_config
+  piframe_uwsgi_config
 
   # interactive prompt for configuration
   piframe_ask_rotate
@@ -238,10 +273,10 @@ piframe_do_install() {
 
 piframe_do_install
 
-# add the autostart when running
-# cat > /home/pi/.bash_profile << EOF
-# [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
-# EOF
+add the autostart when running
+cat > /home/pi/.bash_profile << EOF
+[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
+EOF
 
 #enable ssh
 # cat > /boot/ssh << EOF

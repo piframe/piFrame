@@ -11,10 +11,29 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import configparser
+from piframe.rasbian_config_parser import RpiConfigParser
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+SETTINGS_TEMPLATE_FILE = os.path.join(BASE_DIR, 'config.ini.example')
+SETTINGS_FILE_PATH = os.path.join(BASE_DIR, 'config.ini')
+RASBIAN_CONFIG_PATH = os.path.join('/Volumes/boot/config.txt')
+
+config = configparser.SafeConfigParser()
+config.read(SETTINGS_TEMPLATE_FILE)
+config.read(SETTINGS_FILE_PATH)
+
+rpiconfig = RpiConfigParser()
+RPI_CONFIGS = rpiconfig.read(RASBIAN_CONFIG_PATH)
+RPI_IP = rpiconfig.get_host_name_ip()
+DISPLAY_ROTATE = rpiconfig.get('display_rotate')
+
+FRAME_RESOLUTION = (
+    int(config.get('DEFAULT', 'WIDTH')),
+    int(config.get('DEFAULT', 'HEIGHT'))
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -23,7 +42,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'k&)kzk=x6#-oa)&2k1spvba#b*r1lj53+4175hn$bn$s-8!l*k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get('DEFAULT', 'DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
@@ -124,6 +143,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
         'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ]
 }
 
@@ -135,7 +158,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-FRAME_RESOLUTION = (1920, 1080)
-
-
