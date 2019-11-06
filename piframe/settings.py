@@ -28,7 +28,8 @@ config.read(SETTINGS_FILE_PATH)
 rpiconfig = RpiConfigParser()
 RASBIAN_CONFIG_PATH = config.get('DEFAULT', 'RASBIAN_CONFIG_PATH')
 RPI_CONFIGS = rpiconfig.read(RASBIAN_CONFIG_PATH)
-RPI_IP = rpiconfig.get_host_name_ip()
+
+RPI_HOSTNAME, RPI_IP = rpiconfig.get_host_name_ip()
 
 # Define Env Constants
 DISPLAY_ROTATE = rpiconfig.get('display_rotate')

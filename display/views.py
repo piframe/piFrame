@@ -6,7 +6,6 @@ from django.conf import settings
 
 
 def index(request):
-    latest_question_list = ["artwork1", "artwork2"]
     template = loader.get_template('index.html')
     # template = loader.get_template('display/index.html')
 
@@ -17,9 +16,9 @@ def index(request):
             portrait = True
 
     context = {
-        'latest_question_list': latest_question_list,
         'display_rotate': settings.DISPLAY_ROTATE,
+        'rpi_hostname': settings.RPI_HOSTNAME,
+        'rpi_ip': settings.RPI_IP,
         'portrait': portrait,
-        'foo': 'bar',
     }
     return HttpResponse(template.render(context, request))

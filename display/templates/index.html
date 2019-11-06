@@ -14,13 +14,18 @@
 </head>
 <body>
 {% block content %}
+
+
 	
-  <div id="foreground"></div>
+  <div id="foreground">
+    <h1 id="ip_address">{{ rpi_ip }}</h1>
+  </div>
 
 	<script src="{% static 'display/js/jquery.min.js' %}"></script>
   <script src="{% static 'display/js/jquery.cacheimage.js' %}"></script>
   <script src="{% static 'display/js/pagetransitions.js' %}"></script>
   <script type="text/javascript">
+    // https://stackoverflow.com/questions/10240110/how-do-you-cache-an-image-in-javascript
     function preloadImages(array) {
         if (!preloadImages.list) {
             preloadImages.list = [];
@@ -43,6 +48,8 @@
   </script>
 
   <script type="text/javascript">
+    
+    
 
     var currentArtworkUrl = "";
     function doPoll(){
@@ -88,7 +95,12 @@
         });        
     }
     doPoll();
-
+  </script>
+  <script type="text/javascript">
+    setTimeout(
+      function(){ 
+        $("#ip_address").remove();
+    }, 10000);
   </script>
 {% endblock %}
 </body>

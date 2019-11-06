@@ -37,8 +37,13 @@ class RpiConfigParser(object):
 
     def get_host_name_ip(self):
         try:
-            self.host_name = socket.gethostname()
-            self.host_ip = socket.gethostbyname(self.host_name)
+
+            self.host_name = socket.gethostbyname(socket.gethostname())
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            self.host_ip = s.getsockname()[0]
+            s.close()
+
             return(self.host_name, self.host_ip)
         except:
             return(None, None)
