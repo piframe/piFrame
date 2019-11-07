@@ -19,14 +19,19 @@ def fit(animage, size, output_path):
             try:
                 for idx in ExifTags.TAGS.keys():
                     if ExifTags.TAGS[idx] == 'Orientation':
-                        orientation = idx
                         break
                 exif = dict(im._getexif().items())
-                if exif[orientation] == 3:
+
+                try:
+                    orientation = exif[idx]
+                except (KeyError):
+                    orientation = 0
+
+                if orientation == 3:
                     im = im.rotate(180, expand=True)
-                elif exif[orientation] == 6:
+                elif orientation == 6:
                     im = im.rotate(270, expand=True)
-                elif exif[orientation] == 8:
+                elif orientation == 8:
                     im = im.rotate(90, expand=True)
             except (AttributeError, KeyError, IndexError):
                 raise
