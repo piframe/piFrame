@@ -173,7 +173,7 @@ Type=notify
 NotifyAccess=all
 
 # Main process
-ExecStart=/usr/local/bin/uwsgi --socket :8000 --module piframe.wsgi
+ExecStart=/usr/local/bin/uwsgi --close-on-exec --socket :8000 --module --close-on-exec piframe.wsgi
 
 [Install]
 WantedBy=multi-user.target

@@ -57,20 +57,23 @@ def display_power(request, format=None):
 
 @api_view(['GET'])
 def display_power_set(request, state=1, format=None):
-    output = "display_power=-1\n"
+    # output = "display_power=-1\n"
 
-    if state == 1:
+    if state == 1 or state == '1' or state == 'on':
         proc = subprocess.Popen(['vcgencmd', 'display_power', '1'], stdout=subprocess.PIPE)
         output = proc.stdout.read()
+        name = 'on'
 
-    if state == 0:
+    if state == 0 or state == '0' or state == 'off':
         proc = subprocess.Popen(['vcgencmd', 'display_power', '0'], stdout=subprocess.PIPE)
         output = proc.stdout.read()
+        name = 'off'
 
-    name, value = output.split("=")
+    #  name, value = output.split("=")
 
     content = {
-        name: value.strip(),
+        'name': name,
+        'state': state,
     }
     return Response(content)
 
