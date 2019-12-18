@@ -60,23 +60,17 @@ def display_power_set(request, state=1, format=None):
     output = "display_power=-1\n"
 
     if state == 1:
-        try:
-            proc = subprocess.Popen(['vcgencmd', 'display_power', '1'], stdout=subprocess.PIPE)
-            output = proc.stdout.read()
-        except:
-            output = "display_power=6\n"
+        proc = subprocess.Popen(['vcgencmd', 'display_power', '1'], stdout=subprocess.PIPE)
+        output = proc.stdout.read()
 
     if state == 0:
-        try:
-            proc = subprocess.Popen(['vcgencmd', 'display_power', '0'], stdout=subprocess.PIPE)
-            output = proc.stdout.read()
-        except:
-            output = "display_power=7\n"
+        proc = subprocess.Popen(['vcgencmd', 'display_power', '0'], stdout=subprocess.PIPE)
+        output = proc.stdout.read()
 
     name, value = output.split("=")
 
     content = {
-        name: int(value.strip()),
+        name: value.strip(),
     }
     return Response(content)
 
