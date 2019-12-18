@@ -1,26 +1,51 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
-	
-	{% load static %}
+	<title>PiFrame Display</title>
 	<link rel="stylesheet" type="text/css" href="{% static 'display/css/style.css' %}">
   <style type="text/css">
-    #foreground{
-      background-color: black;
+  {% block content %}
+  
+    {% if portrait %}
+      #foreground{
+        background-color: black;
+        background-image: url('/static/display/img/piframebackground-portrait.jpg');
+      }
+    {% else %}
+      #foreground{
+        background-color: black;
+        background-image: url('/static/display/img/piframebackground-landscape.jpg');
+      }
+    {% endif %}
+
+    #panel{
+      background: black;
+      z-index: 999
+    }
+    .center {
+      margin: auto;
+      width: 50%;
+      padding: 10px;
+    }
+    h1{
+      text-align: center;
+      color:white;
     }
   </style>
 
 </head>
 <body>
-{% block content %}
+
 
 
 	
   <div id="foreground">
-    <h1 id="ip_address">{{ rpi_ip }}</h1>
+    <div id="panel" class="center">
+      <h1 id="ip_address">{{ rpi_ip }}</h1>
+    </div>
   </div>
-
+{% endblock %}
 	<script src="{% static 'display/js/jquery.min.js' %}"></script>
   <script src="{% static 'display/js/jquery.cacheimage.js' %}"></script>
   <script src="{% static 'display/js/pagetransitions.js' %}"></script>
@@ -48,60 +73,58 @@
   </script>
 
   <script type="text/javascript">
-    
-    
+    var windowHeight = $(window).height();
+    var boxHeight = $('.modal-dialog').height();
+    $('.modal-dialog').css({'margin-top' : ((windowHeight - boxHeight )/2)});
+        var currentArtworkUrl = "";
+        function doPoll(){
+          $.ajax({
+              url: '/api/artworks/',
+              dataType: 'json',
+              success: function( data ) {
+                var artwork = data[0];
 
-    var currentArtworkUrl = "";
-    function doPoll(){
-      $.ajax({
-          url: '/api/artworks/',
-          dataType: 'json',
-          success: function( data ) {
-            var artwork = data[0];
-
-            {% if portrait %}
-              var latestArtwork = artwork.portrait;
-            {% else %}
-              var latestArtwork = artwork.landscape;
-            {% endif %}
-            
-
-            if (currentArtworkUrl != latestArtwork){
-              preloadImages([latestArtwork]);
-              // $('#background').css('backgroundImage','url(' + latestArtwork + ')');
-
-              setTimeout(
-                function(){ 
-                  $('#foreground').css('backgroundImage','url(' + latestArtwork + ')'); 
-              }, 1000);
-
-              console.log( "currentArtworkUrl" + currentArtworkUrl );
-              console.log( "latestArtwork" + latestArtwork );
-
-
-              currentArtworkUrl = latestArtwork;
-
-              console.log('Changing Photo');
-            }else{
-              console.log('Ran but not changing photo');
-            }
-            setTimeout(doPoll, 5000);
-          },
-          error: function( data ) {
-            console.log( "ERROR:  " + data );
-            // doPoll();
-            setTimeout(doPoll, 5000);
-          }
-        });        
-    }
-    doPoll();
+                {% if portrait %}
+                  var latestArtwork = artwork.portrait;
+                {% else %}
+                  var latestArtwork = artwork.landscape;
+                {% endif %}
+                
+                if (currentArtworkUrl != latestArtwork){
+                  preloadImages([latestArtwork]);
+                  setTimeout(
+                    function(){ 
+                      $('#foreground').css('backgroundImage','url(' + latestArtwork + ')'); 
+                  }, 1000);
+                  currentArtworkUrl = latestArtwork;
+                }
+                setTimeout(doPoll, 5000);
+              },
+              error: function( data ) {
+                console.log( "ERROR:  " + data );
+                setTimeout(doPoll, 5000);
+              }
+            });        
+        }
+        doPoll();
   </script>
   <script type="text/javascript">
     setTimeout(
       function(){ 
-        $("#ip_address").remove();
+        $("#panel").hide();
     }, 10000);
+    $(document).keypress(function(e) {
+      console.log(e.which);
+      if(e.which === 115) {
+        $("#panel").show();
+      }
+      setTimeout(
+        function(){ 
+          $("#panel").hide();
+        }, 10000);
+    });
+
   </script>
-{% endblock %}
+
 </body>
 </html>

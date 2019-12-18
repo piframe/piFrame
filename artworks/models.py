@@ -42,4 +42,4 @@ class Artwork(models.Model):
         super(Artwork, self).save(*args, **kwargs)  # Call the "real" save() method.
 
     class Meta:
-        ordering = ['-created_date']
+        ordering = ['-modified_date']

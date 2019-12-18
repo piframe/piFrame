@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PiFrame Console</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'console/css/argon/argon-dashboard.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'console/css/ppvn/normalize.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'console/css/ppvn/demo.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'console/css/ppvn/component.css' %}" />
+  <script src="{% static 'console/js/ppvn/modernizr.custom.25376.js' %}"></script>
+  <style type="text/css">
+    .container{
+      max-width: 100%;
+    }
+    .upload-area{
+      border-style: dotted;
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+</head>
+<body>
+{% block content %}
+
+<div id="perspective" class="perspective effect-moveleft">
+      <div class="container">
+        <div class="wrapper"><!-- wrapper needed for scroll -->
+          <!-- Top Navigation -->
+          <div class="codrops-top clearfix">
+            <span class="right">
+              <p><button id="showMenu">Show Menu</button></p>
+            </span>
+          </div>
+          <header class="codrops-header">
+            <h1>Piframe <span>Transforms the page in 3D to reveal a menu</span></h1> 
+          </header>
+          <div class="main clearfix">
+            <div class="column">
+              <img src="https://via.placeholder.com/270x480">
+            </div>
+            <div class="column">
+              <nav class="codrops-demos">
+                <div class="upload-container">
+                  <form action="/file-upload"
+                  class="dropzone upload-area"
+                  id="my-awesome-dropzone"></form>
+                </div>
+                <p>Click on this button to see the content being pushed away in 3D to reveal a navigation or other items.</p>
+              </nav>
+            </div>
+            <div class="related">
+              <p>If you enjoyed this demo you might also like:</p>
+              <p><a href="http://tympanus.net/Tutorials/AnimatedBorderMenus/">Animated Border Menus</a></p>
+              <p><a href="http://tympanus.net/Development/SidebarTransitions/">Transitions for Off-Canvas Navigations</a></p>
+            </div>
+          </div><!-- /main -->
+        </div><!-- wrapper -->
+      </div><!-- /container -->
+      <nav class="outer-nav right vertical">
+        <a href="#" class="icon-home">Home</a>
+        <a href="#" class="icon-news">News</a>
+        <a href="#" class="icon-image">Images</a>
+        <a href="#" class="icon-upload">Uploads</a>
+        <a href="#" class="icon-star">Favorites</a>
+        <a href="#" class="icon-mail">Messages</a>
+        <a href="#" class="icon-lock">Security</a>
+      </nav>
+    </div><!-- /perspective -->
+
+{% endblock %}
+	<script src="{% static 'console/js/jquery.min.js' %}"></script>
+  <script src="{% static 'console/js/jquery.cacheimage.js' %}"></script>
+  <script src="{% static 'console/js/pagetransitions.js' %}"></script>
+  <script src="{% static 'console/js/dropzone.js' %}"></script>
+  <script src="{% static 'console/js/ppvn/classie.js' %}"></script>
+  <script src="{% static 'console/js/ppvn/menu.js' %}"></script>
+
+</body>
+</html>

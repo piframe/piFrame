@@ -19,6 +19,8 @@ from api.serializers import UserSerializer, GroupSerializer, ArtworkSerializer
 
 from django.conf import settings
 
+import subprocess
+
 
 @api_view(['GET'])
 def foo(request, format=None):
@@ -35,6 +37,20 @@ def foo(request, format=None):
     return Response(content)
     # return Response(content, template_name='articles.html')
     # return JsonResponse(content)
+
+
+@api_view(['GET'])
+def display_power(request, format=None):
+    try:
+        proc = subprocess.Popen(['vcgencmd', 'display_power'], stdout=subprocess.PIPE)
+        output = proc.stdout.read()
+    except:
+        output = "error"
+
+    content = {
+        'output': output,
+    }
+    return Response(content)
 
 
 class UserViewSet(viewsets.ModelViewSet):
