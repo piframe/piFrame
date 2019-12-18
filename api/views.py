@@ -68,7 +68,7 @@ def display_power_set(request, state=1, format=None):
 
     if state == 0:
         try:
-            proc = subprocess.Popen(['vcgencmd', 'display_power', 1], stdout=subprocess.PIPE)
+            proc = subprocess.Popen(['vcgencmd', 'display_power', 0], stdout=subprocess.PIPE)
             output = proc.stdout.read()
         except:
             output = "display_power=7\n"
