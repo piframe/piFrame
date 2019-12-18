@@ -13,6 +13,7 @@ router.register(r'artworks', views.ArtworkViewSet)
 urlpatterns = [
     path('foo/', views.foo, name='index'),
     path('display_power/', views.display_power, name='display_power'),
+    path('display_power/<int:state>/', views.display_power_set, name='display_power_set'),
     path(r'list/', views.ListUsers.as_view()),
     path('', include(router.urls)),
 ]

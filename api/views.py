@@ -45,10 +45,38 @@ def display_power(request, format=None):
         proc = subprocess.Popen(['vcgencmd', 'display_power'], stdout=subprocess.PIPE)
         output = proc.stdout.read()
     except:
-        output = "error"
+        output = "display_power=-1\n"
+
+    name, value = output.split("=")
 
     content = {
-        'output': output,
+        name: int(value.strip()),
+    }
+    return Response(content)
+
+
+@api_view(['GET'])
+def display_power_set(request, state=1, format=None):
+    output = "display_power=-1\n"
+
+    if state == 1:
+        try:
+            proc = subprocess.Popen(['vcgencmd', 'display_power', 1], stdout=subprocess.PIPE)
+            output = proc.stdout.read()
+        except:
+            output = "display_power=6\n"
+
+    if state == 0:
+        try:
+            proc = subprocess.Popen(['vcgencmd', 'display_power', 1], stdout=subprocess.PIPE)
+            output = proc.stdout.read()
+        except:
+            output = "display_power=7\n"
+
+    name, value = output.split("=")
+
+    content = {
+        name: int(value.strip()),
     }
     return Response(content)
 
