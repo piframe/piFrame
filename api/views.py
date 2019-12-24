@@ -55,7 +55,7 @@ def display_power(request, format=None):
     return Response(content)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def display_power_set(request, state=1, format=None):
     # output = "display_power=-1\n"
 
