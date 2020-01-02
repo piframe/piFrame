@@ -146,7 +146,7 @@ systemctl enable splashscreen.service
 piframe_uwsgi_config(){
 # configure the openbox 
 cat > /etc/systemd/system/piframe.service << EOF
-# /etc/systemd/system/piframe.service
+# Zpiframe.service
 
 [Unit]
 Description=piFrame
@@ -273,7 +273,7 @@ piframe_do_install() {
 
 piframe_do_install
 
-add the autostart when running
+#add the autostart when running
 cat > /home/pi/.bash_profile << EOF
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
 EOF
