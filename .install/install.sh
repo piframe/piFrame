@@ -90,10 +90,10 @@ EOF
 #Optional Tools
 optional_tools_do_install() {
   echo "install vim"
-	apt-get install --no-install-recommends vim -y
+	apt-get install vim -y
 
   echo "install screen"
-  apt-get install --no-install-recommends screen -y
+  apt-get install screen -y
 }
 
 piframe_configure_pi(){
@@ -173,7 +173,7 @@ Type=notify
 NotifyAccess=all
 
 # Main process
-ExecStart=/usr/local/bin/uwsgi --close-on-exec --socket :8000 --module --close-on-exec piframe.wsgi
+ExecStart=/usr/local/bin/uwsgi --close-on-exec --socket :8000 --module piframe.wsgi
 
 [Install]
 WantedBy=multi-user.target
@@ -209,25 +209,28 @@ piframe_do_install() {
 
 	# add the necessary packages
 	echo "install server x11 utils"
-	apt-get install --no-install-recommends xserver-xorg x11-xserver-utils xinit openbox -y
+	apt-get install xserver-xorg x11-xserver-utils xinit openbox -y
 
 	echo "install chromium"
-	apt-get install --no-install-recommends chromium-browser -y
+	apt-get install chromium-browser -y
 
   echo "install python tools"
-  apt-get install --no-install-recommends python3-dev python3-setuptools -y
+  apt-get install python3-dev python3-setuptools -y
 
   echo "install pip3"
-  apt-get install --no-install-recommends python3-pip -y
+  apt-get install python3-pip -y
 
   echo "libjpg"
-  apt-get install --no-install-recommends libjpeg-dev -y
+  apt-get install libjpeg-dev -y
+
+  echo "libopenjp2-7"
+  apt-get install libopenjp2-7 -y
 
   echo "install git"
-  apt-get install --no-install-recommends git -y
+  apt-get install git -y
 
   echo "install Nginx"
-  apt-get install --no-install-recommends nginx -y
+  apt-get install nginx -y
 
   echo "configure openbox"
   openbox_do_config
