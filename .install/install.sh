@@ -146,7 +146,7 @@ systemctl enable splashscreen.service
 piframe_uwsgi_config(){
 # configure the openbox 
 cat > /etc/systemd/system/piframe.service << EOF
-# Zpiframe.service
+# piframe.service
 
 [Unit]
 Description=piFrame
@@ -191,8 +191,9 @@ piframe_do_install() {
 
   # disable kernel messages
   piframe_edit_or_add /boot/cmdline.txt "consoleblank=0"
-  piframe_edit_or_add /boot/cmdline.txt "loglevel=1"
-  piframe_edit_or_add /boot/cmdline.txt "quiet"
+  # piframe_edit_or_add /boot/cmdline.txt "loglevel=1"
+  # piframe_edit_or_add /boot/cmdline.txt "quiet"
+  piframe_edit_or_add /boot/cmdline.txt "disable_overscan=0"
 
   # disable terminal screen blanking
   piframe_edit_or_add /home/pi/.bashrc "setterm -powersave off -blank 0"
