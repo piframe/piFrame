@@ -186,6 +186,19 @@ systemctl enable piframe.service
 systemctl start piframe.service
 }
 
+piframe_do_autologin(){
+# configure the openbox 
+cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf << EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin pi --noclear %I 38400 linux
+EOF
+cat > /home/pi/.bash_profile <<'EOF'
+[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
+EOF
+chown -R pi:pi /home/pi/.bash_profile
+}
+
 piframe_do_hostname(){
   random=$(LC_CTYPE=C tr -d -c 'a-z0-9' </dev/urandom | head -c 6)
   HOSTN="piframe-${random}"
@@ -196,23 +209,8 @@ piframe_do_hostname(){
 }
 
 piframe_do_install() {
-	# disable the Raspberry Pi ‘color test’ 
-  piframe_edit_or_add /boot/config.txt "disable_splash=1"
-
-  # disable the Raspberry Pi logo in the corner of the screen
-  piframe_edit_or_add /boot/cmdline.txt "logo.nologo"
-
-  # disable kernel messages
-  piframe_edit_or_add /boot/cmdline.txt "consoleblank=0"
-  # piframe_edit_or_add /boot/cmdline.txt "loglevel=1"
-  # piframe_edit_or_add /boot/cmdline.txt "quiet"
-  piframe_edit_or_add /boot/cmdline.txt "disable_overscan=0"
-
   # disable terminal screen blanking
   piframe_edit_or_add /home/pi/.bashrc "setterm -powersave off -blank 0"
-
-  # disable the login prompt
-  systemctl disable getty@tty1
 
 	# update the system
 	echo "update system"
@@ -276,6 +274,24 @@ piframe_do_install() {
 
   piframe_do_hostname
 
+  # disable the Raspberry Pi ‘color test’ 
+  piframe_edit_or_add /boot/config.txt "disable_splash=1"
+
+  # disable the Raspberry Pi logo in the corner of the screen
+  piframe_edit_or_add /boot/cmdline.txt "logo.nologo"
+
+  # disable kernel messages
+  piframe_edit_or_add /boot/cmdline.txt "consoleblank=0"
+  piframe_edit_or_add /boot/cmdline.txt "loglevel=1"
+  piframe_edit_or_add /boot/cmdline.txt "quiet"
+  piframe_edit_or_add /boot/cmdline.txt "disable_overscan=0"
+
+  #autologin
+  piframe_do_autologin
+
+  # disable the login prompt
+  systemctl disable getty@tty1
+
   # interactive prompt for configuration
   piframe_ask_rotate
 
@@ -292,29 +308,8 @@ piframe_do_install() {
 
 piframe_do_install
 
-#add the autostart when running
-cat > /home/pi/.bash_profile << EOF
-[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
-EOF
 
 reboot
-
-#enable ssh
-# cat > /boot/ssh << EOF
-# EOF
-
-
-# start the item running
-#startx -- -nocursor
-
-
-# .bashrc
-
-# if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
-#   exec startx
-#   # Could use xinit instead of startx
-#   #exec xinit -- /usr/bin/X -nolisten tcp vt7
-# fi
 
 
 } # this ensures the entire script is downloaded #
