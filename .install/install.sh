@@ -187,16 +187,24 @@ systemctl start piframe.service
 }
 
 piframe_do_autologin(){
+
 # configure the openbox 
 cat > /etc/systemd/system/getty@tty1.service.d/autologin.conf << EOF
 [Service]
 ExecStart=
 ExecStart=-/sbin/agetty --autologin pi --noclear %I 38400 linux
 EOF
+
+# add command to bash profile
 cat > /home/pi/.bash_profile <<'EOF'
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
 EOF
+
+#change owner to pi
 chown -R pi:pi /home/pi/.bash_profile
+
+# disable the login prompt
+#systemctl disable getty@tty1
 }
 
 piframe_do_hostname(){
@@ -288,9 +296,6 @@ piframe_do_install() {
 
   #autologin
   piframe_do_autologin
-
-  # disable the login prompt
-  systemctl disable getty@tty1
 
   # interactive prompt for configuration
   piframe_ask_rotate
