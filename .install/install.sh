@@ -2,6 +2,10 @@
 # https://die-antwort.eu/techblog/2017-12-setup-raspberry-pi-for-kiosk-mode
 { # this ensures the entire script is downloaded #
 
+if [ "$(id -u)" != "0" ]; then
+echo "Sorry, you are not root."
+exit 1
+fi
 
 #lifted from openframe.io
 piframe_edit_or_add() {
@@ -182,6 +186,15 @@ systemctl enable piframe.service
 systemctl start piframe.service
 }
 
+piframe_do_hostname(){
+  random=$(LC_CTYPE=C tr -d -c 'a-z0-9' </dev/urandom | head -c 6)
+  HOSTN="piframe-${random}"
+  HOSTN="s/raspberrypi/${HOSTN}/g"
+
+  sed -i "${HOSTN}" /etc/hosts
+  sed -i "${HOSTN}" /etc/hostname
+}
+
 piframe_do_install() {
 	# disable the Raspberry Pi ‘color test’ 
   piframe_edit_or_add /boot/config.txt "disable_splash=1"
@@ -261,6 +274,8 @@ piframe_do_install() {
   echo "configure piframe systemctl"
   piframe_uwsgi_config
 
+  piframe_do_hostname
+
   # interactive prompt for configuration
   piframe_ask_rotate
 
@@ -281,6 +296,8 @@ piframe_do_install
 cat > /home/pi/.bash_profile << EOF
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor
 EOF
+
+reboot
 
 #enable ssh
 # cat > /boot/ssh << EOF
